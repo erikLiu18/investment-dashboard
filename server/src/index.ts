@@ -3,9 +3,10 @@ import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { runMigrations } from './db/migrate.js';
-import { backfillAll, startDailyFetchJob } from './jobs/dailyFetch.js';
+import { backfillAll, fetchAllIndicators, startDailyFetchJob } from './jobs/dailyFetch.js';
 import { computeRegime } from './services/regimeAnalysis.js';
 import indicatorRoutes from './routes/indicators.js';
+import insightRoutes from './routes/insights.js';
 import pool from './db/client.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +15,8 @@ const PORT = parseInt(process.env.PORT || '3001');
 
 app.use(cors());
 app.use(express.json());
+
+app.use('/api/insights', insightRoutes);
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
@@ -41,14 +44,17 @@ if (process.env.NODE_ENV !== 'test') {
   async function main() {
     await runMigrations();
 
-    // Listen FIRST so Railway health check passes immediately
     app.listen(PORT, () => {
       console.log(`Investment Dashboard API running on http://localhost:${PORT}`);
     });
 
     startDailyFetchJob();
 
-    // Backfill runs in background after server is already accepting requests
+    // Always fetch latest values on startup to ensure fresh data
+    console.log('[startup] Fetching latest indicator values...');
+    fetchAllIndicators().catch(err => console.error('[startup] fetch error:', err));
+
+    // Backfill 5 years if DB is empty (first deploy)
     const { rows } = await pool.query('SELECT COUNT(*) as count FROM indicator_snapshots');
     if (parseInt(rows[0].count) === 0) {
       console.log('[startup] Empty DB — running 5-year backfill in background...');

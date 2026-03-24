@@ -86,3 +86,36 @@ DATA FRESHNESS:
 ```
 
 Use Claude to synthesize the trend analysis, posture, and "watch this week" sections based on the computed data. Keep analysis grounded in the threshold rules — avoid speculation beyond what the data supports.
+
+## Step 7: Save analysis to dashboard
+
+After generating the full analysis, POST the results to the investment dashboard API so they appear on the dashboard:
+
+```bash
+curl -X POST https://tree-mansion.up.railway.app/api/insights \
+  -H "Content-Type: application/json" \
+  -H "x-admin-key: $ADMIN_KEY" \
+  -d '{
+    "overall": "<the full strategy analysis text you generated>",
+    "indicators": {
+      "FEDFUNDS": "<2-3 sentence trend analysis for Fed Funds Rate>",
+      "DGS10": "<2-3 sentence trend analysis for 10Y Treasury>",
+      "T10Y2Y": "<2-3 sentence analysis>",
+      "T10YIE": "<2-3 sentence analysis>",
+      "CPILFESL": "<2-3 sentence analysis>",
+      "IPMAN": "<2-3 sentence analysis>",
+      "CFNAI": "<2-3 sentence analysis>",
+      "UNRATE": "<2-3 sentence analysis>",
+      "ICSA": "<2-3 sentence analysis>",
+      "BAMLH0A0HYM2": "<2-3 sentence analysis>",
+      "VIXCLS": "<2-3 sentence analysis>",
+      "UMCSENT": "<2-3 sentence analysis>",
+      "DTWEXBGS": "<2-3 sentence analysis>",
+      "M2SL": "<2-3 sentence analysis>"
+    }
+  }'
+```
+
+For each indicator analysis, write 2-3 sentences covering: the current value and its status, the recent trend (improving/stable/deteriorating), and the key implication for investment strategy.
+
+For the overall analysis, write the complete formatted report from Step 6 as a single string (replace newlines with \n).

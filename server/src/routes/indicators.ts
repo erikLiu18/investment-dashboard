@@ -6,11 +6,11 @@ import { upsertSnapshot } from '../db/queries.js';
 
 const router = Router();
 
-// GET /api/indicators — all 14 indicators with latest value + 12-month sparkline history
+// GET /api/indicators — all 14 indicators with latest value + 36-month sparkline history
 router.get('/', async (_req, res) => {
   const results = await Promise.all(
     INDICATORS.map(async (config) => {
-      const history = await getSnapshotsByMonths(config.seriesId, 12);
+      const history = await getSnapshotsByMonths(config.seriesId, 36);
       const latest = history.at(-1) ?? null;
       const previous = history.at(-2) ?? null;
       const latestValue = latest?.value ?? null;
