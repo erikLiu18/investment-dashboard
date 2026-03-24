@@ -1,7 +1,10 @@
 {
   "name": "investment-dashboard",
   "private": true,
-  "workspaces": ["client", "server"],
+  "workspaces": [
+    "client",
+    "server"
+  ],
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:server": "npm run dev -w server",
@@ -10,6 +13,7 @@
     "start": "npm run start -w server"
   },
   "devDependencies": {
+    "@types/lodash": "^4.17.24",
     "concurrently": "^9.1.2"
   }
 }
