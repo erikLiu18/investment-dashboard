@@ -23,9 +23,11 @@ app.get('/{*splat}', (_req, res) => {
 // Export app BEFORE calling listen so tests (supertest) can import without binding a port
 export default app;
 
-// Only start listening when not in test environment — prevents EADDRINUSE in Vitest
+// Only start listening when not in test environment
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
-    console.log(`Investment Dashboard API running on http://localhost:${PORT}`);
-  });
+  import('./db/migrate.js').then(({ runMigrations }) => runMigrations()).then(() => {
+    app.listen(PORT, () => {
+      console.log(`Investment Dashboard API running on http://localhost:${PORT}`);
+    });
+  }).catch(console.error);
 }
